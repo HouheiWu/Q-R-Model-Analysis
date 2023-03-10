@@ -1,0 +1,102 @@
+---
+title: "Supply_chain_game"
+author: "Houhei Wu"
+date: "2/21/2023"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(readxl)
+demand = read_excel("Demand.xlsx")
+acf(demand$Calopeia, lag = 300)
+```
+
+
+```{r}
+demand %>%  
+  mutate(demand = Calopeia) %>% 
+  ggplot(aes(day+730,demand))+
+  geom_line()+
+  geom_hline( aes(yintercept =57.4, color = "High Demand Season Average"))+
+  geom_hline( aes(yintercept = 20.3 ,  color = "Low Demand Season Average"))+
+  geom_vline(aes(xintercept = 730+90), color ="brown", linetype = "dashed")+
+  geom_vline(aes(xintercept = 730+185+90), color ="brown", linetype = "dashed")+
+  geom_vline(aes(xintercept = 730+365+90), color ="brown", linetype = "dashed")+
+  geom_vline(aes(xintercept = 730+365+90+180), color ="brown", linetype = "dashed")+
+  xlab("Days")+
+  ylab("Demand")+
+  theme_classic()
+  geom_smooth()
+```
+```{r}
+stl(ts(demand$Calopeia, frequency = 183), s.window = 183, robust=TRUE)%>% 
+  plot()
+```
+
+```{r}
+demand %>% 
+  filter(day <=185) %>% 
+  ggplot(aes(day, Calopeia))+
+  geom_line()+
+  geom_smooth(method = "lm")
+```
+
+```{r}
+plot(cumsum(demand$Calopeia))
+```
+```{r}
+ecdf(demand$Calopeia)
+
+```
+
+```{r}
+(0.999+132*qbeta(1-0.021,1.02,2.51))
+```
+
+```{r}
+M = 1000000
+b = rep(0,M)
+ds =rep(0,M)
+
+for (i in 1:M){
+  d= (0.999+132*rbeta(1,1.02,2.51))*12
+  ds[i] = d
+  R= 1073
+  if (d-R >= 0){
+    b[i] = d-R
+  }
+}
+
+mean(b)
+quantile(ds, 1-0.0437)
+mean(ds)
+```
+
+```{r}
+#high season
+rnorm(1, 57.4, 20.6)
+
+#low demand
+rnorm(1,20.3, 14)
+```
+
+
+```{r}
+522*0.6301/(20.3*150)
+```
+
+```{r}
+z = qnorm(1-0.09125586)
+z
+z*sqrt((14^2)*12)+20.3*12
+```
+```{r}
+sqrt((14^2)*12)*0.0043
+```
+
+
+```{r}
+(14^2)*12
+```
+
